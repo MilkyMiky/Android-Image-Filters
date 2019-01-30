@@ -1,9 +1,9 @@
-package com.example.opengl.image.gpuimage.custom_filters
+package com.example.opengl.image.gpuimage.filters
 
 import android.opengl.GLES20
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter
 
-const val SHIFT_RIGHT_SHADER = "" +
+const val CLARITY_FRAGMENT_SHADER = "" +
         " varying highp vec2 textureCoordinate;\n" +
         " \n" +
         " uniform sampler2D inputImageTexture;\n" +
@@ -17,16 +17,15 @@ const val SHIFT_RIGHT_SHADER = "" +
         " } "
 
 
-class ClarityFilter : GPUImageFilter(GPUImageFilter.NO_FILTER_VERTEX_SHADER, SHIFT_RIGHT_SHADER) {
+class ClarityFilter : GPUImageFilter(GPUImageFilter.NO_FILTER_VERTEX_SHADER, CLARITY_FRAGMENT_SHADER) {
 
     private var clarityLocation: Int = 0
 
     private var clarity: Float = 0.toFloat()
 
-
     override fun onInit() {
         super.onInit()
-        clarityLocation = GLES20.glGetUniformLocation(getProgram(), "clarity")
+        clarityLocation = GLES20.glGetUniformLocation(program, "clarity")
     }
 
     override fun onInitialized() {
@@ -34,7 +33,7 @@ class ClarityFilter : GPUImageFilter(GPUImageFilter.NO_FILTER_VERTEX_SHADER, SHI
         setClarity(clarity)
     }
 
-    fun setClarity(clarity: Float) {
+    private fun setClarity(clarity: Float) {
         this.clarity = clarity
         setFloat(clarityLocation, this.clarity)
     }

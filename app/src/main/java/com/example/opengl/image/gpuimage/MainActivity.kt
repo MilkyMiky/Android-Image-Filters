@@ -60,7 +60,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setFilter(progress: Int) {
-        gpuimageview.filter = filterService.getFilter(FilterType.CLARITY, progress)
+        gpuimageview.filter = filterService.getFilter(
+            FilterType.GRAIN,
+            progress,
+            FilterService.ImageSize(gpuimageview.width.toFloat(), gpuimageview.height.toFloat())
+        )
     }
 
     private fun mockPoints() =
