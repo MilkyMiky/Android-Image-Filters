@@ -14,7 +14,7 @@ class FilterService {
             FilterType.SHADOWS -> GPUImageHighlightShadowFilter(scaleProgress(progress, 0.0f, 1.0f), 1.0f)
             FilterType.CONTRAST -> GPUImageContrastFilter(scaleProgress(progress, 0.0f, 2.0f))
             FilterType.SATURATION -> GPUImageSaturationFilter(scaleProgress(progress, 0.0f, 2.0f))
-            FilterType.WHITE_BALANCE -> GPUImageWhiteBalanceFilter(5000.0f, 0.0f)
+            FilterType.WHITE_BALANCE -> GPUImageWhiteBalanceFilter(5000.0f, scalеdTintValues(progress))
             FilterType.TEMPERATURE -> GPUImageWhiteBalanceFilter(scaleTemperatureValues(progress), 0.0f)
             FilterType.TINT -> GPUImageWhiteBalanceFilter(5000.0f, scalеdTintValues(progress))
             FilterType.CLARITY -> GPUImageSharpenFilter(scaleProgress(progress, -0.1f, 0.2f))
