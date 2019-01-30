@@ -17,7 +17,7 @@ class FilterService {
             FilterType.WHITE_BALANCE -> GPUImageWhiteBalanceFilter(5000.0f, 0.0f)
             FilterType.TEMPERATURE -> GPUImageWhiteBalanceFilter(scaleTemperatureValues(progress), 0.0f)
             FilterType.TINT -> GPUImageWhiteBalanceFilter(5000.0f, scalеdTintValues(progress))
-//            FilterType.CLARITY -> GPUImageLuminanceFilter(scaleProgress(progress, -4.0f, 4.0f))
+            FilterType.CLARITY -> GPUImageSharpenFilter(scaleProgress(progress, -0.1f, 0.2f))
         }
     }
 
@@ -95,7 +95,7 @@ enum class FilterType {
     SATURATION,
     TEMPERATURE,
     TINT,
-    WHITE_BALANCE
-//    CLARITY
+    WHITE_BALANCE,
+    CLARITY
 
 }
