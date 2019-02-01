@@ -58,8 +58,7 @@ const val GRAIN_FRAGMENT_SHADER = "" +
         "}"
 
 class GrainFilter(
-    private val width: Float,
-    private val height: Float,
+    private val imageSize: ImageSize,
     private val brightness: Float,
     private val contrast: Float
 ) : GPUImageFilter(GPUImageFilter.NO_FILTER_VERTEX_SHADER, GRAIN_FRAGMENT_SHADER) {
@@ -83,10 +82,15 @@ class GrainFilter(
     }
 
     private fun setLocations() {
-        setFloat(widthLocation, width)
-        setFloat(heightLocation, height)
+        setFloat(widthLocation, imageSize.width)
+        setFloat(heightLocation, imageSize.height)
         setFloat(contrastLocation, contrast)
         setFloat(brightnessLocation, brightness)
     }
 
 }
+
+class ImageSize(
+    var width: Float = 0.0f,
+    var height: Float = 0.0f
+)

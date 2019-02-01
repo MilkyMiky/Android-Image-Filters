@@ -4,7 +4,6 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.PointF
 import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -12,10 +11,10 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.widget.SeekBar
 import android.widget.Toast
+import com.example.opengl.image.gpuimage.filters.ImageSize
 import kotlinx.android.synthetic.main.activity_main.*
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 const val REQUEST_IMAGE_GALLERY = 100
 
@@ -63,19 +62,9 @@ class MainActivity : AppCompatActivity() {
         gpuimageview.filter = filterService.getFilter(
             FilterType.GRAIN,
             progress,
-            FilterService.ImageSize(gpuimageview.width.toFloat(), gpuimageview.height.toFloat())
+            ImageSize(gpuimageview.width.toFloat(), gpuimageview.height.toFloat())
         )
     }
-
-    private fun mockPoints() =
-        arrayListOf(
-            PointF(0.0090758824112391716f, 0.0f),
-            PointF(0.19306930693069307f, 0.099835008677869763f),
-            PointF(0.44719469429242731f, 0.39191421659866177f),
-            PointF(0.67821782178217827f, 0.68811881188118806f),
-            PointF(0.87211219863136213f, 0.86798681126962796f),
-            PointF(0.98102308972047103f, 0.92244225681418235f)
-        )
 
     private fun setImage(imgUri: Uri) {
         gpuimageview.setImage(imgUri)

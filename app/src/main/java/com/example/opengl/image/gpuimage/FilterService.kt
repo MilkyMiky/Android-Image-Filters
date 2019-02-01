@@ -2,95 +2,73 @@ package com.example.opengl.image.gpuimage
 
 
 import android.graphics.PointF
-import com.example.opengl.image.gpuimage.filters.GrainFilter
+import com.example.opengl.image.gpuimage.filters.*
 import jp.co.cyberagent.android.gpuimage.filter.*
 import java.util.ArrayList
 
+const val EXPOSURE_SCALE_START = -10.0f
+const val EXPOSURE_SCALE_END = 10.0f
+
+const val HIGHLIGHTS_SCALE_START = 0.0f
+const val HIGHLIGHTS_SCALE_END = 1.0f
+
+const val SHADOWS_SCALE_START = 0.0f
+const val SHADOWS_SCALE_END = 1.0f
+
+const val CONTRAST_SCALE_START = 0.0f
+const val CONTRAST_SCALE_END = 2.0f
+
+const val SATURATION_SCALE_START = 0.0f
+const val SATURATION_SCALE_END = 2.0f
+
+const val CLARITY_SCALE_START = -0.1f
+const val CLARITY_SCALE_END = 0.2f
+
+const val GRAIN_SCALE_START = 0.0f
+const val GRAIN_SCALE_END = 2.0f
+
 class FilterService {
 
-    class ImageSize(
-        var width : Float = 0.0f,
-        var height  : Float = 0.0f
-    )
-
-    fun getFilter(filter: FilterType, progress: Int, imageSize: ImageSize = ImageSize(), points: ArrayList<PointF> = ArrayList()): GPUImageFilter {
+    fun getFilter(
+        filter: FilterType,
+        progress: Int,
+        imageSize: ImageSize = ImageSize(),
+        points: ArrayList<PointF> = ArrayList()
+    ): GPUImageFilter {
         return when (filter) {
-            FilterType.EXPOSURE -> GPUImageExposureFilter(scaleProgress(progress, -10.0f, 10.0f))
-            FilterType.HIGHLIGHTS -> GPUImageHighlightShadowFilter(0.0f, scaleProgress(progress, 0.0f, 1.0f))
-            FilterType.SHADOWS -> GPUImageHighlightShadowFilter(scaleProgress(progress, 0.0f, 1.0f), 1.0f)
-            FilterType.CONTRAST -> GPUImageContrastFilter(scaleProgress(progress, 0.0f, 2.0f))
-            FilterType.SATURATION -> GPUImageSaturationFilter(scaleProgress(progress, 0.0f, 2.0f))
-            FilterType.TEMPERATURE -> GPUImageWhiteBalanceFilter(scaleTemperatureValues(progress), 0.0f)
-            FilterType.TINT -> GPUImageWhiteBalanceFilter(5000.0f, scaleTintValues(progress))
-            FilterType.CLARITY -> GPUImageSharpenFilter(scaleProgress(progress, -0.1f, 0.2f))
-            FilterType.GRAIN -> GrainFilter(imageSize.width, imageSize.height, scaleProgress(progress, 0.0f, 2.0f) / 2,
-               scaleProgress(progress, 0.0f, 2.0f))
-            FilterType.WHITES -> getWhitesFilter(progress)
-            FilterType.BLACKS -> getBlacksFilter(progress)
-            FilterType.TONE_CURVE -> getToneCurveFilter(points)
-
+            FilterType.EXPOSURE -> GPUImageExposureFilter(scaleProgress(progress, EXPOSURE_SCALE_START, EXPOSURE_SCALE_END))
+            FilterType.HIGHLIGHTS -> GPUImageHighlightShadowFilter(0.0f, scaleProgress(progress, HIGHLIGHTS_SCALE_START, HIGHLIGHTS_SCALE_END))
+            FilterType.SHADOWS -> GPUImageHighlightShadowFilter(scaleProgress(progress, SHADOWS_SCALE_START, SHADOWS_SCALE_END), 1.0f)
+            FilterType.CONTRAST -> GPUImageContrastFilter(scaleProgress(progress, CONTRAST_SCALE_START, CONTRAST_SCALE_END))
+            FilterType.SATURATION -> GPUImageSaturationFilter(scaleProgress(progress, SATURATION_SCALE_START, SATURATION_SCALE_END))
+            FilterType.TEMPERATURE -> TemperatureFilter(progress)
+            FilterType.TINT -> TintFilter(progress)
+            FilterType.CLARITY -> GPUImageSharpenFilter(scaleProgress(progress, CLARITY_SCALE_START, CLARITY_SCALE_END))
+            FilterType.GRAIN -> GrainFilter(
+                imageSize,
+                scaleProgress(progress, GRAIN_SCALE_START, GRAIN_SCALE_END) / 2,
+                scaleProgress(progress, GRAIN_SCALE_START, GRAIN_SCALE_END)
+            )
+            FilterType.WHITES -> WhitesFilter(progress)
+            FilterType.BLACKS -> BlacksFilter(progress)
+            FilterType.TONE_CURVE -> ToneCurveFilter(points)
+            FilterType.SPLIT_TONING -> SplitToningFilter()
         }
-    }
-
-    private fun getToneCurveFilter(points: ArrayList<PointF>): GPUImageFilter {
-        val filter = GPUImageToneCurveFilter()
-        if (points.first().x > 0)
-            points.add(0, PointF(0.0f, points.first().y))
-        if (points.last().x < 1)
-            points.add(PointF(1.0f, points.last().y))
-        filter.setRgbCompositeControlPoints(points.toTypedArray())
-        return filter
-    }
-
-
-    private fun getWhitesFilter(progress: Int): GPUImageFilter {
-        val filter = GPUImageToneCurveFilter()
-        val scaledPercentage = progress / 100.0f
-        val delta = (scaledPercentage - 0.5f) * 0.6f
-
-        val lastPoint = if (delta > 0) PointF(1.0f - delta, 1.0f) else PointF(1.0f, 1.0f + delta)
-
-        val points = arrayListOf(
-            PointF(0.0f, 0.0f),
-            PointF(0.1f, 0.1f),
-            PointF(0.11f, 0.11f),
-            PointF(0.12f, 0.12f),
-            lastPoint
-        )
-
-        filter.setRgbCompositeControlPoints(points.toTypedArray())
-        return filter
-    }
-
-    private fun getBlacksFilter(progress: Int): GPUImageFilter {
-        val filter = GPUImageToneCurveFilter()
-        val scaledPercentage = progress / 100.0f
-        val delta = (scaledPercentage - 0.5f) / 4
-
-        val points = arrayListOf(
-            PointF(0.0f, 0.0f),
-            PointF(0.125f, 0.125f + delta),
-            PointF(0.998f, 0.998f),
-            PointF(1.0f, 1.0f)
-        )
-
-        filter.setRgbCompositeControlPoints(points.toTypedArray())
-        return filter
     }
 
     private fun scaleProgress(percentage: Int, start: Float, end: Float): Float =
         (end - start) * percentage / 100.0f + start
 
-    private fun scaleTemperatureValues(percentage: Int): Float {
-        val scaledPercentage = percentage / 100.0f
-        return if (scaledPercentage < 0.5) 4000 + scaledPercentage * 2000
-        else 40000 * scaledPercentage * scaledPercentage * scaledPercentage
-    }
+    private fun mockPoints() =
+        arrayListOf(
+            PointF(0.0090758824112391716f, 0.0f),
+            PointF(0.19306930693069307f, 0.099835008677869763f),
+            PointF(0.44719469429242731f, 0.39191421659866177f),
+            PointF(0.67821782178217827f, 0.68811881188118806f),
+            PointF(0.87211219863136213f, 0.86798681126962796f),
+            PointF(0.98102308972047103f, 0.92244225681418235f)
+        )
 
-    private fun scaleTintValues(percentage: Int): Float {
-        val scaledPercentage = percentage / 100.0f
-        return -200 + scaledPercentage * 400
-    }
 }
 
 enum class FilterType {
@@ -106,4 +84,5 @@ enum class FilterType {
     WHITES,
     BLACKS,
     TONE_CURVE,
+    SPLIT_TONING
 }
