@@ -9,9 +9,11 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import android.util.Log
 import android.widget.SeekBar
 import android.widget.Toast
 import com.example.opengl.image.gpuimage.filters.ImageSize
+import com.example.opengl.image.gpuimage.widgets.OnColorPickedListener
 import kotlinx.android.synthetic.main.activity_main.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -42,6 +44,13 @@ class MainActivity : AppCompatActivity() {
             else
                 Toast.makeText(this, "Select image", Toast.LENGTH_SHORT).show()
         }
+
+        gradient_view.setOnColorPickedListener( object : OnColorPickedListener{
+            override fun onColorPicked(hue: Float, bright: Float) {
+                Log.d("log", "COLOR H=$hue, B=$bright")
+            }
+        })
+
 
         seekBar.setOnSeekBarChangeListener(
             object : SeekBar.OnSeekBarChangeListener {
