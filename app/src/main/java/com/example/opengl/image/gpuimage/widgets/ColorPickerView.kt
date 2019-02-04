@@ -88,7 +88,7 @@ class ColorPickerView @JvmOverloads constructor(
     private fun updatePointerPosition() {
         if (gradientRect.width() != 0f && gradientRect.height() != 0f) {
             lastX = hueToPoint(hsv[0])
-            lastY = brightnessToPoint(hsv[1])
+            lastY = saturationToPoint(hsv[1])
         }
     }
 
@@ -106,7 +106,7 @@ class ColorPickerView @JvmOverloads constructor(
         val y = Math.max(gradientRect.top, Math.min(cordY.toFloat(), gradientRect.bottom)).toInt()
 
         val hue = pointToHue(x.toFloat())
-        val sat = pointToValueBrightness(y.toFloat())
+        val sat = pointToSaturation(y.toFloat())
         listener?.onColorPicked(hue, sat)
     }
 
@@ -143,19 +143,18 @@ class ColorPickerView @JvmOverloads constructor(
         return (gradientRect.left + hue * gradientRect.width() / 360).toInt()
     }
 
-    private fun pointToValueBrightness(b: Float): Float {
-        var x = b
-        x -= gradientRect.left
-        return 1 - 1f / gradientRect.width() * x
+    private fun pointToSaturation(sat: Float): Float {
+        var y = sat
+        y -= gradientRect.top
+        return 1 - 1f / gradientRect.height() * y
     }
 
-    private fun brightnessToPoint(b: Float): Int {
-        var x = b
-        x = 1 - x
-        return (gradientRect.left + gradientRect.width() * x).toInt()
+    private fun saturationToPoint(sat: Float): Int {
+        val x = 1 - sat
+        return (gradientRect.top + gradientRect.height() * x).toInt()
     }
 }
 
 interface OnColorPickedListener {
-    fun onColorPicked(hue: Float, bright: Float)
+    fun onColorPicked(hue: Float, sat: Float)
 }

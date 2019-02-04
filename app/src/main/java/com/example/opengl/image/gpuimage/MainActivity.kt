@@ -12,7 +12,7 @@ import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.widget.SeekBar
 import android.widget.Toast
-import com.example.opengl.image.gpuimage.filters.ImageSize
+import com.example.opengl.image.gpuimage.filters.HSB
 import com.example.opengl.image.gpuimage.widgets.OnColorPickedListener
 import kotlinx.android.synthetic.main.activity_main.*
 import java.text.SimpleDateFormat
@@ -45,9 +45,10 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Select image", Toast.LENGTH_SHORT).show()
         }
 
-        gradient_view.setOnColorPickedListener( object : OnColorPickedListener{
-            override fun onColorPicked(hue: Float, bright: Float) {
-                Log.d("log", "COLOR H=$hue, B=$bright")
+        gradient_view.setOnColorPickedListener(object : OnColorPickedListener {
+            override fun onColorPicked(hue: Float, sat: Float) {
+                setFilter(hsb = HSB(hue = hue , bright = 0.5f, sat = sat))
+                Log.d("log", "COLOR H=$hue, B=$sat")
             }
         })
 
@@ -67,11 +68,9 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    private fun setFilter(progress: Int) {
+    private fun setFilter(progress: Int = 0, hsb: HSB = HSB()) {
         gpuimageview.filter = filterService.getFilter(
-            FilterType.GRAIN,
-            progress,
-            ImageSize(gpuimageview.width.toFloat(), gpuimageview.height.toFloat())
+            FilterType.SPLIT_TONING, hsb = hsb
         )
     }
 
