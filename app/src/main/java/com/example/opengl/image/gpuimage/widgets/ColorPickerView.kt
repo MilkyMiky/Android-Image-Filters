@@ -20,7 +20,7 @@ class ColorPickerView @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
 
     private var lastX = Integer.MIN_VALUE
-    private var lastY: Int = 0
+    private var lastY: Int = Integer.MAX_VALUE
     private val hsv = floatArrayOf(1f, 1f, 1f)
 
     private var paint: Paint? = null

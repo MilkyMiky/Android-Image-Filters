@@ -52,7 +52,6 @@ class FilterService {
             FilterType.HIGHLIGHTS -> HightlightsFilter(
                 scaleProgress(progress, HIGHLIGHTS_SCALE_START, HIGHLIGHTS_SCALE_END)
             )
-//GPUImageColorBlendFilter
             FilterType.SHADOWS -> GPUImageHighlightShadowFilter(
                 scaleProgress(
                     progress,
@@ -107,7 +106,6 @@ class FilterService {
 fun hsvToRgb(hue: Float, saturation: Float, value: Float): RGB {
     val outputColor = Color.HSVToColor(floatArrayOf(hue, saturation, value))
 
-//    Log.d("log", "COLOR r=${Color.red(outputColor)}, g=${Color.green(outputColor)}, b=${Color.blue(outputColor)}")
     return RGB(
         Color.red(outputColor).toFloat(),
         Color.green(outputColor).toFloat(),

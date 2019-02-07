@@ -1,6 +1,5 @@
 package com.example.opengl.image.gpuimage.filters
 
-import android.graphics.Color
 import android.opengl.GLES20
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter
 
@@ -113,30 +112,18 @@ const val SPLIT_TONE_FRAGMENT_SHADER = "" +
         "   const highp float b = 0.333;\n" +
         "   const highp float scale = 0.7;\n" +
 
-//        "   highp vec3 midtones = (clamp((lightness - border) /  a + 0.5, 0.0, 1.0) * clamp ((lightness + border - 1.0) / -a + 0.5, 0.0, 1.0) * scale) * shift;\n" +
-//        "   highp vec3 midtones = (clamp((lightness + border - 1.0) /  a + 0.5, 0.0, 1.0) * scale) * shift;\n" +
         "   highp vec3 shadows = (clamp((lightness - border) /  -a + 0.5, 0.0, 1.0) * scale) * shadowsShift;\n" +
-        "   highp vec3 highlights = (clamp((lightness + border - 1.0) /  a + 0.5, 0.0, 1.0) * scale) * highlightsShift;\n" +
+        "   highp vec3 highlights = (clamp((lightness + (1.0 - border) - 1.0) /  a + 0.5, 0.0, 1.0) * scale) * highlightsShift;\n" +
 
-//        "   highp vec3 highlights = (clamp((lightness + b - 1.0) / a + 0.5, 0.0, 1.0) * scale) * shift;\n" +
+        "   highp vec3 newColor = textureColor.rgb + shadows + highlights;\n" +
+        "   newColor = clamp(newColor, 0.0, 1.0);\n" +
 
-//        "   highp vec3 shadowsColor = textureColor.rgb + shadows;\n" +
-//        "   highp vec3 highlightsColor = shadowsColor.rgb + highlights;\n" +
-        " textureColor.rgb = textureColor.rgb + highlights + shadows;\n" +
-//        "   highp vec3 newColor = midColor.rgb + highlights;\n" +
+        "   highp vec3 newHSL = RGBToHSL(newColor);\n" +
+        "   highp float oldLum = RGBToL(textureColor.rgb);\n" +
+        "   textureColor.rgb = HSLToRGB(vec3(newHSL.x, newHSL.y, oldLum));\n" +
 
-//        "   highp vec3 newHSL = RGBToHSL(midColor);\n" +
-//        "   highp float oldLum = RGBToL(textureColor.rgb);\n" +
-//        "   textureColor.rgb = HSLToRGB(vec3(newHSL.x, newHSL.y, oldLum)); \n" +
-
-
-//        "   highp vec3 highlights = (clamp((lightness + b - 1.0) /  a + 0.5, 0.0, 1.0) * scale) * shift;\n" +
-//        "   highp vec3 highlightColor = textureColor.rgb + highlights;\n" +
-//        "   highp vec3 highlightHSL = RGBToHSL(highlightColor);\n" +
-
-//        "   textureColor.rgb = HSLToRGB(vec3(highlightHSL.x, highlightHSL.y, oldLum)); \n" +
-        "        gl_FragColor = textureColor;\n" +
-        "    }\n"
+        "   gl_FragColor = textureColor;\n" +
+        "}\n"
 
 class SplitToningFilter(
     private val highlightsRGB: RGB,
@@ -147,11 +134,9 @@ class SplitToningFilter(
     private var redHighlightsLocation = 0
     private var greenHighlightsLocation = 0
     private var blueHighlightsLocation = 0
-
     private var redShadowsLocation = 0
     private var greenShadowsLocation = 0
     private var blueShadowsLocation = 0
-
     private var borderLocation = 0
 
     override fun onInit() {
@@ -160,11 +145,9 @@ class SplitToningFilter(
         redHighlightsLocation = GLES20.glGetUniformLocation(program, "redHighlightsShift")
         greenHighlightsLocation = GLES20.glGetUniformLocation(program, "greenHighlightsShift")
         blueHighlightsLocation = GLES20.glGetUniformLocation(program, "blueHighlightsShift")
-
         redShadowsLocation = GLES20.glGetUniformLocation(program, "redShadowsShift")
         greenShadowsLocation = GLES20.glGetUniformLocation(program, "greenShadowsShift")
         blueShadowsLocation = GLES20.glGetUniformLocation(program, "blueShadowsShift")
-
         borderLocation = GLES20.glGetUniformLocation(program, "border")
     }
 
@@ -174,16 +157,12 @@ class SplitToningFilter(
     }
 
     private fun setLocations() {
-//        setFloat(hueLocation, hsb.hue)
-//        setFloat(saturationLocation, hsb.saturation)
         setFloat(redHighlightsLocation, highlightsRGB.r)
         setFloat(greenHighlightsLocation, highlightsRGB.g)
         setFloat(blueHighlightsLocation, highlightsRGB.b)
-
         setFloat(redShadowsLocation, shadowsRGB.r)
         setFloat(greenShadowsLocation, shadowsRGB.g)
         setFloat(blueShadowsLocation, shadowsRGB.b)
-
         setFloat(borderLocation, border)
     }
 }
@@ -195,60 +174,70 @@ class HSV(
     var value: Float = 0.0f
 ) {
 
-    fun hsvToRgb(hue: Float, saturation: Float, value: Float): RGB {
-        val outputColor = Color.HSVToColor(floatArrayOf(hue, saturation, value))
-//        Log.d("log", "COLOR r=${Color.red(outputColor)}, g=${Color.green(outputColor)}, b=${Color.blue(outputColor)}")
-        return RGB(
-            Color.red(outputColor).toFloat(),
-            Color.green(outputColor).toFloat(),
-            Color.blue(outputColor).toFloat()
-        )
-    }
-
-    fun hsvToRgb(hsv: HSV): RGB {
-        val outputColor = Color.HSVToColor(floatArrayOf(hsv.hue, hsv.saturation, hsv.value))
-//        Log.d("log", "COLOR r=${Color.red(outputColor)}, g=${Color.green(outputColor)}, b=${Color.blue(outputColor)}")
-        return RGB(
-            Color.red(outputColor).toFloat(),
-            Color.green(outputColor).toFloat(),
-            Color.blue(outputColor).toFloat()
-        )
-    }
-
     companion object {
 
         fun customHsvToRgb(hsv: HSV): RGB {
-            if (0 <= hsv.hue && hsv.hue < 60) {
-                val huePercent = hsv.hue * 1.666
-                return if (huePercent < 50.0)
-                    RGB(r = (huePercent * 2.55f).toFloat())
-                else
-                    RGB(r = ((100 - huePercent) * 2.55f).toFloat(), b = -((huePercent - 50) * 2.55f).toFloat())
-            } else if (60 <= hsv.hue && hsv.hue < 120) {
-                val huePercent = (hsv.hue) * 0.833
-                return if (huePercent < 50.0)
-                    RGB(b = -(huePercent * 2.55f).toFloat())
-                else
-                    RGB(b = -((100 - huePercent) * 2.55f).toFloat(), g = ((huePercent - 50) * 2.55f).toFloat())
+            var rgb = customHueToRgb(hsv.hue)
+            rgb = customSaturationToRgb(hsv.saturation, rgb)
+            return rgb
+        }
 
-            } else if (120 <= hsv.hue && hsv.hue < 180) {
+        private fun customSaturationToRgb(saturation: Float, rgb: RGB): RGB = RGB(
+            r = rgb.r * saturation,
+            g = rgb.g * saturation,
+            b = rgb.b * saturation
+        )
 
-                return RGB()
-            } else if (180 <= hsv.hue && hsv.hue < 240) {
+        private fun customHueToRgb(hue: Float): RGB {
+            val percentageOfOneCoefficient = 2.55f
+            val percentageOfSixtyCoefficient = 1.66f
+            val hundredPercent = 100
+            val colorRed = 0
+            val colorYellow = 60
+            val colorGreen = 120
+            val colorCyan = 180
+            val colorBlue = 240
+            val colorMagenta = 300
 
-                return RGB()
-            } else if (240 <= hsv.hue && hsv.hue < 300) {
-
-                return RGB()
-            } else if (300 <= hsv.hue && hsv.hue < 360) {
-
-                return RGB()
+            if (colorRed <= hue && hue < colorYellow) {
+                val huePercent = hue * percentageOfSixtyCoefficient
+                return RGB(
+                    r = (hundredPercent - huePercent) * percentageOfOneCoefficient,
+                    b = -huePercent * percentageOfOneCoefficient
+                )
+            } else if (colorYellow <= hue && hue < colorGreen) {
+                val huePercent = (hue - colorYellow) * percentageOfSixtyCoefficient
+                return RGB(
+                    b = -(hundredPercent - huePercent) * percentageOfOneCoefficient,
+                    g = huePercent * percentageOfOneCoefficient
+                )
+            } else if (colorGreen <= hue && hue < colorCyan) {
+                val huePercent = (hue - colorGreen) * percentageOfSixtyCoefficient
+                return RGB(
+                    r = -huePercent * percentageOfOneCoefficient,
+                    g = (hundredPercent - huePercent) * percentageOfOneCoefficient
+                )
+            } else if (colorCyan <= hue && hue < colorBlue) {
+                val huePercent = (hue - colorCyan) * percentageOfSixtyCoefficient
+                return RGB(
+                    r = -(hundredPercent - huePercent) * percentageOfOneCoefficient,
+                    b = huePercent * percentageOfOneCoefficient
+                )
+            } else if (colorBlue <= hue && hue < colorMagenta) {
+                val huePercent = (hue - colorBlue) * percentageOfSixtyCoefficient
+                return RGB(
+                    g = -huePercent * percentageOfOneCoefficient,
+                    b = (hundredPercent - huePercent) * percentageOfOneCoefficient
+                )
+            } else {
+                val huePercent = (hue - colorMagenta) * percentageOfSixtyCoefficient
+                return RGB(
+                    r = huePercent * percentageOfOneCoefficient,
+                    g = -(hundredPercent - huePercent) * percentageOfOneCoefficient
+                )
             }
-
-            return RGB()
         }
     }
-
 }
 
 class RGB(

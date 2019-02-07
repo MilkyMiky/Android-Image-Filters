@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Select image", Toast.LENGTH_SHORT).show()
         }
 
-        gradient_view.setOnColorPickedListener(object : OnColorPickedListener {
+        gv_highlights.setOnColorPickedListener(object : OnColorPickedListener {
             override fun onColorPicked(hue: Float, sat: Float) {
                 rgb = HSV.customHsvToRgb(HSV(hue = hue, saturation = sat, value = 1.0f))
                 rgb.r /= 255
@@ -61,11 +61,23 @@ class MainActivity : AppCompatActivity() {
 
         })
 
+        gv_shadows.setOnColorPickedListener(object : OnColorPickedListener {
+            override fun onColorPicked(hue: Float, sat: Float) {
+                rgb2 = HSV.customHsvToRgb(HSV(hue = hue, saturation = sat, value = 1.0f))
+                rgb2.r /= 255
+                rgb2.g /= 255
+                rgb2.b /= 255
+                setFilter()
+            }
+
+        })
+
 
         seekBalance.setOnSeekBarChangeListener(
             object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                     balance = seekBar!!.progress / 100.0f
+                    Log.d("log","Balance $balance")
                     setFilter()
                 }
 
@@ -82,11 +94,8 @@ class MainActivity : AppCompatActivity() {
         (100 + 100) * percentage / 100.0f - 100
 
     private fun setFilter(progress: Int = 0, HSV: HSV = HSV()) {
-
-        Log.d("log", "COLOR r=${rgb.r}, g=${rgb.g}, b=${rgb.b}")
-
         gpuimageview.filter = filterService.getFilter(
-            FilterType.SPLIT_TONING, rgb = RGB(), rgb2 = rgb, balance = balance
+            FilterType.SPLIT_TONING, rgb = rgb, rgb2 = rgb2, balance = balance
         )
     }
 

@@ -23,7 +23,7 @@
             android:max="100"
             android:progress="50"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toTopOf="@+id/gradient_view"
+            app:layout_constraintBottom_toTopOf="@+id/gv_highlights"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             android:layout_marginEnd="8dp"
@@ -33,58 +33,30 @@
 
 
     <com.example.opengl.image.gpuimage.widgets.ColorPickerView
-            android:id="@+id/gradient_view"
+            android:id="@+id/gv_highlights"
             android:layerType="software"
-            android:layout_margin="16dp"
             android:padding="8dp"
             android:background="@color/picker_background"
             android:layout_width="match_parent"
-            android:layout_height="72dp"
-            tools:layout_editor_absoluteX="16dp" android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toTopOf="@+id/buttonPick"/>
+            android:layout_height="48dp"
+            app:layout_constraintBottom_toTopOf="@+id/gv_shadows"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginStart="16dp"
+            app:layout_constraintStart_toStartOf="parent"/>
 
-    <!--<SeekBar-->
-            <!--android:id="@+id/seekRed"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:max="100"-->
-            <!--android:progress="50"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--app:layout_constraintBottom_toTopOf="@+id/seekGreen"-->
-            <!--app:layout_constraintEnd_toEndOf="parent"-->
-            <!--app:layout_constraintStart_toStartOf="parent"-->
-            <!--android:layout_marginEnd="8dp"-->
-            <!--android:text="Add filter"-->
-            <!--android:layout_marginStart="8dp"-->
-            <!--android:layout_marginBottom="8dp"/>-->
-
-    <!--<SeekBar-->
-            <!--android:id="@+id/seekGreen"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:max="100"-->
-            <!--android:progress="50"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--app:layout_constraintBottom_toTopOf="@+id/seekBlue"-->
-            <!--app:layout_constraintEnd_toEndOf="parent"-->
-            <!--app:layout_constraintStart_toStartOf="parent"-->
-            <!--android:layout_marginEnd="8dp"-->
-            <!--android:text="Add filter"-->
-            <!--android:layout_marginStart="8dp"-->
-            <!--android:layout_marginBottom="8dp"/>-->
-
-    <!--<SeekBar-->
-            <!--android:id="@+id/seekBlue"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:max="100"-->
-            <!--android:progress="50"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--app:layout_constraintBottom_toTopOf="@+id/seekBalance"-->
-            <!--app:layout_constraintEnd_toEndOf="parent"-->
-            <!--app:layout_constraintStart_toStartOf="parent"-->
-            <!--android:layout_marginEnd="8dp"-->
-            <!--android:text="Add filter"-->
-            <!--android:layout_marginStart="8dp"-->
-            <!--android:layout_marginBottom="8dp"/>-->
-
+    <com.example.opengl.image.gpuimage.widgets.ColorPickerView
+            android:id="@+id/gv_shadows"
+            android:layerType="software"
+            android:padding="8dp"
+            android:background="@color/picker_background"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            app:layout_constraintBottom_toTopOf="@+id/buttonPick"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginStart="16dp"
+            app:layout_constraintStart_toStartOf="parent"/>
 
     <Button
             android:id="@+id/buttonPick"
