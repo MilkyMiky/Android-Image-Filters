@@ -12,7 +12,8 @@ import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.widget.SeekBar
 import android.widget.Toast
-import com.example.opengl.image.gpuimage.filters.HSB
+import com.example.opengl.image.gpuimage.filters.HSV
+import com.example.opengl.image.gpuimage.filters.RGB
 import com.example.opengl.image.gpuimage.widgets.OnColorPickedListener
 import kotlinx.android.synthetic.main.activity_main.*
 import java.text.SimpleDateFormat
@@ -28,6 +29,10 @@ class MainActivity : AppCompatActivity() {
     private var uri: Uri = Uri.EMPTY
 
     private val filterService = FilterService()
+
+    private var rgb = RGB()
+    private var rgb2 = RGB()
+    private var balance = 0.0f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,16 +52,21 @@ class MainActivity : AppCompatActivity() {
 
         gradient_view.setOnColorPickedListener(object : OnColorPickedListener {
             override fun onColorPicked(hue: Float, sat: Float) {
-                setFilter(hsb = HSB(hue = hue , bright = 0.5f, sat = sat))
-                Log.d("log", "COLOR H=$hue, B=$sat")
+                rgb = HSV.customHsvToRgb(HSV(hue = hue, saturation = sat, value = 1.0f))
+                rgb.r /= 255
+                rgb.g /= 255
+                rgb.b /= 255
+                setFilter()
             }
+
         })
 
 
-        seekBar.setOnSeekBarChangeListener(
+        seekBalance.setOnSeekBarChangeListener(
             object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                    setFilter(seekBar!!.progress)
+                    balance = seekBar!!.progress / 100.0f
+                    setFilter()
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -68,9 +78,15 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    private fun setFilter(progress: Int = 0, hsb: HSB = HSB()) {
+    private fun scaleProgress(percentage: Int): Float =
+        (100 + 100) * percentage / 100.0f - 100
+
+    private fun setFilter(progress: Int = 0, HSV: HSV = HSV()) {
+
+        Log.d("log", "COLOR r=${rgb.r}, g=${rgb.g}, b=${rgb.b}")
+
         gpuimageview.filter = filterService.getFilter(
-            FilterType.SPLIT_TONING, hsb = hsb
+            FilterType.SPLIT_TONING, rgb = RGB(), rgb2 = rgb, balance = balance
         )
     }
 
