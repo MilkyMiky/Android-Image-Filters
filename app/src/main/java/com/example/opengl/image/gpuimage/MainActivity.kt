@@ -15,6 +15,7 @@ import android.widget.Toast
 import com.example.opengl.image.gpuimage.filters.HSV
 import com.example.opengl.image.gpuimage.filters.RGB
 import com.example.opengl.image.gpuimage.widgets.OnColorPickedListener
+import jp.co.cyberagent.android.gpuimage.GPUImage
 import kotlinx.android.synthetic.main.activity_main.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -37,6 +38,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        gpuimageview.setBackgroundColor(1.0f,1.0f,1.0f)
+        gpuimageview.setScaleType(GPUImage.ScaleType.CENTER_INSIDE)
 
         buttonPick.setOnClickListener { dispatchGalleryIntent() }
         buttonSave.setOnClickListener {
