@@ -37,9 +37,10 @@ class FilterService {
         imageSize: ImageSize = ImageSize(),
         points: ArrayList<PointF> = ArrayList(),
         HSV: HSV = HSV(),
-        rgb  : RGB = RGB(),
-        rgb2 : RGB = RGB(),
-        balance : Float = 0.0f
+        rgb: RGB = RGB(),
+        rgb2: RGB = RGB(),
+        balance: Float = 0.0f,
+        colorMixInput : ColorMixInput = ColorMixInput()
     ): GPUImageFilter {
         return when (filter) {
             FilterType.EXPOSURE -> GPUImageExposureFilter(
@@ -85,6 +86,7 @@ class FilterService {
             FilterType.BLACKS -> BlacksFilter(progress)
             FilterType.TONE_CURVE -> ToneCurveFilter(points)
             FilterType.SPLIT_TONING -> SplitToningFilter(rgb, rgb2, balance)
+            FilterType.COLOR_MIX -> ColorMixFilter(colorMixInput)
         }
     }
 
@@ -128,5 +130,6 @@ enum class FilterType {
     WHITES,
     BLACKS,
     TONE_CURVE,
-    SPLIT_TONING
+    SPLIT_TONING,
+    COLOR_MIX
 }

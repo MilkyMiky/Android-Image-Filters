@@ -14,6 +14,7 @@ import android.widget.SeekBar
 import android.widget.Toast
 import com.example.opengl.image.gpuimage.filters.HSV
 import com.example.opengl.image.gpuimage.filters.RGB
+import com.example.opengl.image.gpuimage.filters.*
 import com.example.opengl.image.gpuimage.widgets.OnColorPickedListener
 import jp.co.cyberagent.android.gpuimage.GPUImage
 import kotlinx.android.synthetic.main.activity_main.*
@@ -35,12 +36,37 @@ class MainActivity : AppCompatActivity() {
     private var rgb2 = RGB()
     private var balance = 0.0f
 
+    private var hsv: HSV = HSV()
+    private var colorMixInput = ColorMixInput()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        gpuimageview.setBackgroundColor(1.0f,1.0f,1.0f)
+        gpuimageview.setBackgroundColor(1.0f, 1.0f, 1.0f)
         gpuimageview.setScaleType(GPUImage.ScaleType.CENTER_INSIDE)
+        initButtons()
+        initRadio()
+        initMIXColorPickers()
+    }
 
+    private fun initRadio() {
+        rb_yellow.isChecked = true
+        radio.setOnCheckedChangeListener { _, checkedId ->
+            hsv = HSV()
+            when (checkedId) {
+                R.id.rb_red -> colorMixInput.redHSV = hsv
+                R.id.rb_orange -> colorMixInput.orangeHSV = hsv
+                R.id.rb_yellow -> colorMixInput.yellowHSV = hsv
+                R.id.rb_green -> colorMixInput.greenHSV = hsv
+                R.id.rb_cyan -> colorMixInput.cyanHSV = hsv
+                R.id.rb_blue -> colorMixInput.blueHSV = hsv
+                R.id.rb_violet -> colorMixInput.violetHSV = hsv
+                R.id.rb_magenta -> colorMixInput.magentaHSV = hsv
+            }
+        }
+    }
+
+    private fun initButtons() {
         buttonPick.setOnClickListener { dispatchGalleryIntent() }
         buttonSave.setOnClickListener {
             if (uri != Uri.EMPTY)
@@ -53,6 +79,57 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Select image", Toast.LENGTH_SHORT).show()
         }
 
+    }
+
+    private fun initMIXColorPickers() {
+        sb_hue.setOnSeekBarChangeListener(
+            object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    hsv.hue = scaleProgress(seekBar!!.progress) / 2
+                    Log.d("log","hue ${hsv.hue}")
+                    setFilter()
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                }
+            }
+        )
+
+        sb_saturation.setOnSeekBarChangeListener(
+            object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    hsv.saturation = scaleProgress(seekBar!!.progress, 0.0f, 2.0f)
+                    setFilter()
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                }
+            }
+        )
+
+        sb_value.setOnSeekBarChangeListener(
+            object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    hsv.value = scaleProgress(seekBar!!.progress, -0.3f, 0.3f)
+                    setFilter()
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                }
+            }
+        )
+    }
+
+    fun initColorPickers() {
         gv_highlights.setOnColorPickedListener(object : OnColorPickedListener {
             override fun onColorPicked(hue: Float, sat: Float) {
                 rgb = HSV.customHsvToRgb(HSV(hue = hue, saturation = sat, value = 1.0f))
@@ -75,12 +152,10 @@ class MainActivity : AppCompatActivity() {
 
         })
 
-
         seekBalance.setOnSeekBarChangeListener(
             object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                     balance = seekBar!!.progress / 100.0f
-                    Log.d("log","Balance $balance")
                     setFilter()
                 }
 
@@ -91,16 +166,21 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         )
+
+    }
+
+    private fun setFilter() {
+        gpuimageview.filter = filterService.getFilter(
+            FilterType.COLOR_MIX, HSV = hsv, colorMixInput = colorMixInput
+        )
     }
 
     private fun scaleProgress(percentage: Int): Float =
         (100 + 100) * percentage / 100.0f - 100
 
-    private fun setFilter(progress: Int = 0, HSV: HSV = HSV()) {
-        gpuimageview.filter = filterService.getFilter(
-            FilterType.SPLIT_TONING, rgb = rgb, rgb2 = rgb2, balance = balance
-        )
-    }
+    private fun scaleProgress(percentage: Int, start: Float, end: Float): Float =
+        (end - start) * percentage / 100.0f + start
+
 
     private fun setImage(imgUri: Uri) {
         gpuimageview.setImage(imgUri)

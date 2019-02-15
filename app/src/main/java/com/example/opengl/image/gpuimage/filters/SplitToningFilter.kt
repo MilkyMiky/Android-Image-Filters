@@ -170,7 +170,7 @@ class SplitToningFilter(
 
 class HSV(
     var hue: Float = 0.0f,
-    var saturation: Float = 0.5f,
+    var saturation: Float = 1.0f,
     var value: Float = 0.0f
 ) {
 
